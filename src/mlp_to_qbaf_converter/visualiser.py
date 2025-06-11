@@ -30,7 +30,6 @@ from Uncertainpy.src.uncertainpy import gradual as grad
 if TYPE_CHECKING:
     import networkx as nx
 
-pn.extension("bokeh")
 pn.config.sizing_mode = "scale_both"
 
 
