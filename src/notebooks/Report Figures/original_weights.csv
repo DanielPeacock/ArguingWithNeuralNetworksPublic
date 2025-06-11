@@ -1,0 +1,24 @@
+Argument Pair,Original Weight
+"('Sepal Width', 'Layer 1 Neuron 2')",6.9580277996912585
+"('Sepal Width', 'Layer 1 Neuron 1')",4.582441102421771
+"('Sepal Length', 'Layer 1 Neuron 2')",6.3298882671715075
+"('Sepal Length', 'Layer 1 Neuron 1')",4.102368964918962
+"('Petal Width', 'Layer 1 Neuron 2')",12.295676663416165
+"('Petal Width', 'Layer 1 Neuron 1')",3.4439659769026565
+"('Petal Length', 'Layer 1 Neuron 2')",12.63403946327282
+"('Petal Length', 'Layer 1 Neuron 1')",18.062693024405156
+"('Layer 2 Neuron 3', 'Iris-virginica')",11.905153821346381
+"('Layer 2 Neuron 3', 'Iris-versicolor')",4.281953912740018
+"('Layer 2 Neuron 3', 'Iris-setosa')",15.593136028701652
+"('Layer 2 Neuron 2', 'Iris-virginica')",0.3223869888675184
+"('Layer 2 Neuron 2', 'Iris-versicolor')",1.8618625356992378
+"('Layer 2 Neuron 2', 'Iris-setosa')",1.5344549881083864
+"('Layer 2 Neuron 1', 'Iris-virginica')",22.4375979061329
+"('Layer 2 Neuron 1', 'Iris-versicolor')",4.234693823640565
+"('Layer 2 Neuron 1', 'Iris-setosa')",17.80314045325299
+"('Layer 1 Neuron 2', 'Layer 2 Neuron 3')",19.94071982279174
+"('Layer 1 Neuron 2', 'Layer 2 Neuron 2')",6.990349679128132
+"('Layer 1 Neuron 2', 'Layer 2 Neuron 1')",1.9286653368808304
+"('Layer 1 Neuron 1', 'Layer 2 Neuron 3')",15.027143619352593
+"('Layer 1 Neuron 1', 'Layer 2 Neuron 2')",2.8028695775140853
+"('Layer 1 Neuron 1', 'Layer 2 Neuron 1')",14.152896016170237

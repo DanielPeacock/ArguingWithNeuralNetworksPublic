@@ -1,0 +1,6 @@
+[submodule "src/Uncertainpy"]
+	path = src/Uncertainpy
+	url = git@github.com:DanielPeacock/Uncertainpy.git
+[submodule "src/sparx/lime"]
+	path = src/sparx/lime
+	url = git@github.com:DanielPeacock/lime.git
