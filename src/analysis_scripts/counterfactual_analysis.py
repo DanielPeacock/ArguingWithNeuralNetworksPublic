@@ -13,6 +13,7 @@ from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import MinMaxScaler
+from timeout import timeout
 from tqdm import tqdm
 
 import Uncertainpy.src.uncertainpy.gradual as grad
@@ -21,6 +22,8 @@ from mlp_to_qbaf_converter.counterfactual_contestability_explanation import (
 )
 from mlp_to_qbaf_converter.mlp_to_qbaf import MLPToQBAF
 from sparx.sparx import LocalSpArX
+
+timeout_mins = 30
 
 seed = 2025
 data = pd.read_csv("data/diabetes.csv")
@@ -234,10 +237,10 @@ neurons_per_layer = [
     mlp.n_outputs_,
 ]
 
-differences = np.zeros((len(X_test), len(sparsification_amounts)), dtype=float)
-valids = np.empty((len(X_test), len(sparsification_amounts)), dtype=bool)
-distances = np.zeros((len(X_test), len(sparsification_amounts)), dtype=float)
-original_distances = np.zeros((len(X_test), len(sparsification_amounts)))
+differences = np.ones((len(X_test), len(sparsification_amounts)), dtype=float) * np.inf
+valids = np.ones((len(X_test), len(sparsification_amounts))) * np.inf
+distances = np.ones((len(X_test), len(sparsification_amounts)), dtype=float) * np.inf
+original_distances = np.ones((len(X_test), len(sparsification_amounts))) * np.inf
 
 for example_num in tqdm(range(len(X_test)), desc="Example Num"):
     example = X_test[example_num]
@@ -253,13 +256,18 @@ for example_num in tqdm(range(len(X_test)), desc="Example Num"):
         example,
     ).get_qbaf()
 
-    original_ce = CounterfactualContestabilityExplanation(
-        original_qbaf,
-        grad.SumAggregation(),
-        grad.MLPBasedInfluence(),
-        output_names[0],
-        seed,
-    )
+    try:
+        with timeout(timeout_mins):
+            original_ce = CounterfactualContestabilityExplanation(
+                original_qbaf,
+                grad.SumAggregation(),
+                grad.MLPBasedInfluence(),
+                output_names[0],
+                seed,
+            )
+    except TimeoutError as e:
+        print(f"Timeout occurred: {e}")
+        continue
 
     desired_strength = original_ce.desired_strength
     delta = original_ce.delta
@@ -298,13 +306,18 @@ for example_num in tqdm(range(len(X_test)), desc="Example Num"):
             example,
         ).get_qbaf()
 
-        sparse_ce = CounterfactualContestabilityExplanation(
-            sparse_qbaf,
-            grad.SumAggregation(),
-            grad.MLPBasedInfluence(),
-            output_names[0],
-            seed,
-        )
+        try:
+            with timeout(timeout_mins):
+                sparse_ce = CounterfactualContestabilityExplanation(
+                    sparse_qbaf,
+                    grad.SumAggregation(),
+                    grad.MLPBasedInfluence(),
+                    output_names[0],
+                    seed,
+                )
+        except TimeoutError as e:
+            print(f"Timeout occurred: {e}")
+            continue
 
         desired_strength = sparse_ce.desired_strength
         delta = sparse_ce.delta

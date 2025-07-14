@@ -11,6 +11,7 @@ from sklearn.calibration import LabelEncoder
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import MinMaxScaler
+from timeout import timeout
 from tqdm import tqdm
 from ucimlrepo import fetch_ucirepo
 
@@ -20,6 +21,8 @@ from mlp_to_qbaf_converter.counterfactual_contestability_explanation import (
 )
 from mlp_to_qbaf_converter.mlp_to_qbaf import MLPToQBAF
 from sparx.sparx import LocalSpArX
+
+timeout_mins = 30
 
 seed = 10
 
@@ -234,15 +237,21 @@ for example_num in tqdm(range(len(X_test)), desc="Example Num"):
         example,
     ).get_qbaf()
 
-    original_ce = CounterfactualContestabilityExplanation(
-        original_qbaf,
-        grad.SumAggregation(),
-        grad.MLPBasedInfluence(),
-        output_names[0],
-        seed,
-    ).get_ce_explanation()
+    try:
+        with timeout(timeout_mins):
+            original_ce = CounterfactualContestabilityExplanation(
+                original_qbaf,
+                grad.SumAggregation(),
+                grad.MLPBasedInfluence(),
+                output_names[0],
+                seed,
+            ).get_ce_explanation()
 
-    end_orig = time.time()
+        end_orig = time.time()
+
+    except TimeoutError as e:
+        print(f"Timeout occurred: {e}")
+        end_orig = np.inf
 
     for i, sparsification in enumerate(sparsification_amounts):
         sparse_time = time.time()
@@ -269,33 +278,39 @@ for example_num in tqdm(range(len(X_test)), desc="Example Num"):
             example,
         ).get_qbaf()
 
-        sparse_ce = CounterfactualContestabilityExplanation(
-            sparse_qbaf,
-            grad.SumAggregation(),
-            grad.MLPBasedInfluence(),
-            output_names[0],
-            seed,
-        ).get_ce_explanation()
+        try:
+            with timeout(timeout_mins):
+                sparse_ce = CounterfactualContestabilityExplanation(
+                    sparse_qbaf,
+                    grad.SumAggregation(),
+                    grad.MLPBasedInfluence(),
+                    output_names[0],
+                    seed,
+                ).get_ce_explanation()
 
-        approx_weights = create_new_qbaf(
-            original_qbaf,
-            sparse_qbaf,
-            sp,
-            sparse_ce,
-            input_feature_names,
-            output_names,
-        )
+                approx_weights = create_new_qbaf(
+                    original_qbaf,
+                    sparse_qbaf,
+                    sp,
+                    sparse_ce,
+                    input_feature_names,
+                    output_names,
+                )
 
-        fixed_ce = CounterfactualContestabilityExplanation(
-            original_qbaf,
-            grad.SumAggregation(),
-            grad.MLPBasedInfluence(),
-            output_names[0],
-            seed,
-            initial_cf_weights=approx_weights,
-        ).get_ce_explanation()
+                fixed_ce = CounterfactualContestabilityExplanation(
+                    original_qbaf,
+                    grad.SumAggregation(),
+                    grad.MLPBasedInfluence(),
+                    output_names[0],
+                    seed,
+                    initial_cf_weights=approx_weights,
+                ).get_ce_explanation()
 
-        end_sparse = time.time()
+                end_sparse = time.time()
+
+        except TimeoutError as e:
+            print(f"Timeout occurred: {e}")
+            end_sparse = np.inf
 
         timings_sparse[example_num, i] = end_sparse - sparse_time
         timings_original[example_num, i] = end_orig - start_orig
